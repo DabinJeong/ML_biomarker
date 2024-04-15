@@ -2,7 +2,7 @@
 
 ## Installation
 ```
-conda create -n ML_biomarker python=3.9.19
+conda create -n ML_biomarker python=3.9.13
 conda activate ML_biomarker
 
 conda update -n base -c defaults conda
