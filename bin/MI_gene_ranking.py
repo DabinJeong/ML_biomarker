@@ -24,11 +24,13 @@ def avg_mut_info(matrix, label, N=10):
     return (score/N)
 
 class matrix_sampling:
-    def __init__(self, matrix, label):
+    def __init__(self, matrix, label_dict):
         self.data = matrix
-        self.label = label
-        self.num_classes = len(set(label.values()))
-        self.counter_classes = collections.Counter(label.values())
+        self.label_dict = label_dict
+        self.num_classes = len(set(self.label_dict.values()))
+
+        label = self.data.index.map(lambda x:self.label_dict[x])
+        self.counter_classes = collections.Counter(label)
         self.sampling_and_rank()
 
     def sampling_and_rank(self):
@@ -37,13 +39,13 @@ class matrix_sampling:
         # Eqaulty sampling for each class
         samples_idx = []
         for key in self.counter_classes.keys():
-            ids_tmp = filter(lambda x:x is not None, map(lambda x:x if self.label[x]==key else None, self.data.index))
+            ids_tmp = filter(lambda x:x is not None, map(lambda x:x if self.label_dict[x]==key else None, self.data.index))
             samples_idx += np.random.choice(list(ids_tmp),N_samples,replace=False).tolist()
         self.data_sampled = self.data.loc[samples_idx,:]
         self.binned_data_sampled = self.data_sampled.apply(lambda x: pd.qcut(-x,self.num_classes,labels=False),axis=0)
 
     def mutual_info(self):
-        labels = self.binned_data_sampled.index.map(lambda x:self.label[x])
+        labels = self.binned_data_sampled.index.map(lambda x:self.label_dict[x])
         le = LabelEncoder()
         crit = le.fit_transform(labels)
         return self.binned_data_sampled.apply(lambda x: self.jointProb(x,crit),axis=0)

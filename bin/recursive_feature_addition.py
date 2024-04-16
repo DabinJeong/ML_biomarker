@@ -10,7 +10,10 @@ def main(args):
     label_dict = dict(pd.read_csv(args.label, sep='\t',header=0).values)
     
     # Data split
-    train, test = pd.DataFrame(input_data.iloc[:-1,:]), pd.DataFrame(input_data.iloc[-1,:]).T
+    data_split = pd.read_csv(args.data_split, sep='\t', header=0, index_col=0)
+    train_idx = data_split.loc[lambda x:x.train==True,:].index
+    test_idx = data_split.loc[lambda x:x.test==True,:].index
+    train, test = pd.DataFrame(input_data.loc[train_idx,:]), pd.DataFrame(input_data.loc[test_idx,:])
 
     # ===== Feature ranking ===== 
     # 1. Ranking by Mutual Information
@@ -57,6 +60,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-data", type=str, help="Input: sample X feature matrix in tsv format")
     parser.add_argument("-label", type=str, help="Labels of sample")
+    parser.add_argument("-data_split", type=str, help="Data split file in tsv format")
     parser.add_argument("-outDir",type=str)
     args = parser.parse_args()
     if os.path.exists(args.outDir) == False:
