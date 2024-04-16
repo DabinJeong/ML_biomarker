@@ -15,7 +15,7 @@ def main(args):
     # ===== Feature ranking ===== 
     # 1. Ranking by Mutual Information
     score_MI = pd.DataFrame(avg_mut_info(train,label_dict,100)).rename(columns={0:'MI_score'}).sort_values(by=['MI_score'],ascending=False)
-    import pdb;pdb.set_trace()
+    
     # 2. Ranking by Network Propagation
     score_NP = run_NP(train, label_dict, args.outDir)
 
@@ -25,17 +25,25 @@ def main(args):
     # ===== Recursive feature addition ===== 
     accuracy = []
     for k in range(1, input_data.shape[1]):
-        X = train.iloc[:k,:].to_numpy()
+        genes = score.index[:k]
+        X = train.loc[:,genes].to_numpy()
         y = train.index.map(lambda x: label_dict[x])
 
         model = SVC(C=0.25, gamma='auto', kernel='rbf',decision_function_shape='ovo')
         accuracy.append(cross_val_score(model, X, y, cv=3).mean())
 
-    k = np.argwhere(np.array(accuracy) == np.max(np.array(accuracy)))[0]
+    k_optimal = np.argwhere(np.array(accuracy) == np.max(np.array(accuracy)))[0]
+    
+    genes_final = score.index[:k_optimal]
+    X_final = train.loc[:,genes_final].to_numpy()
+    y_final = X_final.index.map(lambda x: label_dict[x])
+    model_final = SVC(C=0.25, gamma='auto', kernel='rbf',decision_function_shape='ovo').fit(X_final, y_final)
 
     # Test with in-distribution data
-
-    return
+    X_test = test.loc[:,genes_final].to_numpy()
+    y_test = test.index.map(lambda x: label_dict[x])
+    y_pred = model_final.predict(X_test)
+    return (y_test, y_pred)
 
 
 if __name__=='__main__':
