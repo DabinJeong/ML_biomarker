@@ -10,7 +10,7 @@ def main(args):
     label_dict = dict(pd.read_csv(args.label, sep='\t',header=0).values)
     
     # Data split
-    train, test = input_data.iloc[:-1,:], input_data.iloc[-1,:]
+    train, test = pd.DataFrame(input_data.iloc[:-1,:]), pd.DataFrame(input_data.iloc[-1,:]).T
 
     # ===== Feature ranking ===== 
     # 1. Ranking by Mutual Information
@@ -32,18 +32,25 @@ def main(args):
         model = SVC(C=0.25, gamma='auto', kernel='rbf',decision_function_shape='ovo')
         accuracy.append(cross_val_score(model, X, y, cv=3).mean())
 
-    k_optimal = np.argwhere(np.array(accuracy) == np.max(np.array(accuracy)))[0]
+    k_optimal = np.argwhere(np.array(accuracy) == np.max(np.array(accuracy)))[0,0]
     
     genes_final = score.index[:k_optimal]
     X_final = train.loc[:,genes_final].to_numpy()
-    y_final = X_final.index.map(lambda x: label_dict[x])
+    y_final = train.loc[:,genes_final].index.map(lambda x: label_dict[x])
     model_final = SVC(C=0.25, gamma='auto', kernel='rbf',decision_function_shape='ovo').fit(X_final, y_final)
 
     # Test with in-distribution data
     X_test = test.loc[:,genes_final].to_numpy()
     y_test = test.index.map(lambda x: label_dict[x])
     y_pred = model_final.predict(X_test)
-    return (y_test, y_pred)
+
+    with open(args.outDir+'/recursive_feature_addition.txt', 'w') as f:
+        f.write("Optimal number of features: "+str(k_optimal)+'\n')
+        f.write("Selected features: "+", ".join(genes_final)+'\n')
+        f.write("Accuracy: "+str(np.max(np.array(accuracy))+'\n'))
+        f.write("Test result (predicted, actual): "+'\t'.join(y_pred, y_test))
+
+    return 
 
 
 if __name__=='__main__':
