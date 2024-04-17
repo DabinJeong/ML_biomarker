@@ -17,8 +17,8 @@ pip install -r requirements.txt
 ```
 
 ## Biomarker discovery
-- Input: data (Sample X feature matrix in tsv format), label (Sample X 2 matrix in tsv format), data_split (Sample X 3 matrix in tsv format)
-- Output: Number of selected features, Selected genes (i.e. biomarker candidate), Max accuracy in recursive feature addition, Predicted label in test set, True label in test set
+- **Input**: data (Sample X feature matrix in tsv format), label (Sample X 2 matrix in tsv format), data_split (Sample X 3 matrix in tsv format)
+- **Output**: Number of selected features, Selected genes (i.e. biomarker candidate), Max accuracy in recursive feature addition, Predicted label in test set, True label in test set
 ```
 python bin/recursive_feature_addition.py -data data/Asthma/MS_LFQ.tsv -label data/Asthma/patient_label.tsv -data_split data_split/Asthma_CV_1.tsv -outDir result_Asthma_CV_1
 ```
