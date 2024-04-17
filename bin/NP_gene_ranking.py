@@ -48,6 +48,7 @@ def run_NP(df_data, label_dict, outDir):
     cmd = ["python", NP_script, network, seed, '-o', outDir+'/tmp/NP_with_DEPs.txt', '-e', '0.5', '-addBidirectionEdge', 'True', '-normalize', 'True', '-constantWeight', 'True']
     # !python 3_network_analysis.py STRING/human_string_ppi_norm.nwk.over0.5 latest/ANOVA_DEPs.txt -o latest/NP_with_DEPs.txt -e 0.5 -addBidirectionEdge True -normalize True -constantWeight True
     subprocess.run(cmd)
+
     out = pd.read_csv(outDir+"/tmp/NP_with_DEPs.txt", sep='\t', header=None, index_col=0, names=['NP_score'])#[0]
 
     return out
