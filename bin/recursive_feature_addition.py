@@ -8,11 +8,11 @@ from NP_gene_ranking import *
 def main(args):
     input_data = pd.read_csv(args.data, sep='\t', header=0, index_col=0)
     label_dict = dict(pd.read_csv(args.label, sep='\t',header=0).values)
-    
+
     # Data split
     data_split = pd.read_csv(args.data_split, sep='\t', header=0, index_col=0)
-    train_idx = data_split.loc[lambda x:x.train==True,:].index
-    test_idx = data_split.loc[lambda x:x.test==True,:].index
+    train_idx = list(set(input_data.index).intersection(set(data_split.loc[lambda x:x.train==True,:].index)))
+    test_idx = list(set(input_data.index).intersection(set(data_split.loc[lambda x:x.test==True,:].index)))
     train, test = pd.DataFrame(input_data.loc[train_idx,:]), pd.DataFrame(input_data.loc[test_idx,:])
 
     # ===== Feature ranking ===== 
@@ -50,8 +50,9 @@ def main(args):
     with open(args.outDir+'/recursive_feature_addition.txt', 'w') as f:
         f.write("Optimal number of features: "+str(k_optimal)+'\n')
         f.write("Selected features: "+", ".join(genes_final)+'\n')
-        f.write("Accuracy: "+str(np.max(np.array(accuracy))+'\n'))
-        f.write("Test result (predicted, actual): "+'\t'.join(y_pred, y_test))
+        f.write("Accuracy: "+str(np.max(np.array(accuracy)))+'\n')
+        f.write("Test result (y_predicted): "+'\t'.join(map(str,y_pred))+'\n')
+        f.write("Test result (y_true): "+'\t'.join(map(str,y_test)))
 
     return 
 
