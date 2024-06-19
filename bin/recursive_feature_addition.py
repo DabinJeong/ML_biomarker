@@ -37,7 +37,7 @@ def main(args):
 
     k_optimal = np.argwhere(np.array(accuracy) == np.max(np.array(accuracy)))[0,0]
     
-    genes_final = score.index[:k_optimal]
+    genes_final = score.index[:(k_optimal+1)]
     X_final = train.loc[:,genes_final].to_numpy()
     y_final = train.loc[:,genes_final].index.map(lambda x: label_dict[x])
     model_final = SVC(C=0.25, gamma='auto', kernel='rbf',decision_function_shape='ovo').fit(X_final, y_final)
